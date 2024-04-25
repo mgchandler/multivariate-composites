@@ -1,0 +1,99 @@
+frame:
+  datafile: ../Raw Ultrasonic Data/g1 s9/x0/x0_z0_001.mat
+  #
+  instrument_delay: 0 # shift the t=0 defined in datafile by this number.
+
+probe:
+  frequency: 5.0e+6
+  numx: 128
+  pitch_x: 0.3e-3
+  numy: 1
+  pitch_y: .nan
+  dimensions: [0.25e-3, 15.e-3, .nan]
+
+toneburst:
+  num_cycles: 5
+  
+probe_location:
+  # Element corresponding to x=0:
+  ref_element: mean
+
+couplant_material:
+  metadata:
+    long_name: Water
+  longitudinal_vel: 1495.
+  density: 1000.
+  state_of_matter: liquid
+
+block_material:
+  metadata:
+    long_name: Composite
+  longitudinal_vel: 2900.
+  transverse_vel: 1500.
+  density: 3500.
+  state_of_matter: solid
+
+scatterer:
+  angle_deg: 90.
+  location:
+    x: 30.e-3
+    y: 0.0
+    z: 35.e-3
+
+  # Uncomment and edit the desired specs
+  specs:
+    kind: sdh
+    radius: 1.0e-3
+  
+# # Geometry: start with front wall if it exists and move clockwise.
+# contiguous_geometry:
+  # numpoints: 1000
+  # coords:
+  # - [-20.0e-3,   0.0   ]
+  # - [ 47.5e-3,   0.0   ]
+  # - [ 47.5e-3,  46.0e-3]
+  # - [ 27.5e-3,  46.0e-3]
+  # - [ 27.5e-3,  26.0e-3]
+  # - [-20.0e-3,  26.0e-3]
+  # - [-20.0e-3,   0.0   ]
+  # imaging_walls:
+  # - 1
+
+# If imaging with internal reflection of the frontwall:
+frontwall:
+  numpoints: 2000
+  xmin: -50.e-3
+  xmax: 50.e-3
+  z: 0.
+
+# If imaging with internal reflection of the backwall:
+backwall:
+  numpoints: 2000
+  xmin: -50.e-3
+  xmax: 50.e-3
+  z: 25.e-3
+
+grid:
+  xmin: 25.0e-3
+  xmax: 50.0e-3
+  zmin: 26.0e-3
+  zmax: 47.0e-3
+  pixel_size: .25e-3
+
+filter_for_tfm:
+  order: 4
+  cutoff_min: 2.e+6
+  cutoff_max: 8.e+6
+
+# Disable dynamic dB scale in rectangle:
+reference_rect: null
+
+# Enable dynamic dB scale in rectangle:
+# reference_rect:
+  # xmin: 4.e-3
+  # xmax: 9.e-3
+  # zmin: 17.5e-3
+  # zmax: 22.5e-3
+
+# views_to_use: all
+views_to_use: [L-L] #, L-T, T-T, LL-LL, LLL-L]
