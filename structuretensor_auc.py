@@ -11,7 +11,7 @@ References
 ----------
 [1] - L. J. NELSON, et al., Ply-orientation measurements in composites using
         structure-tensor analysis of volumetric ultrasonic data, Composites A,
-        Volume 126, p. 105581, Nov 2019, doi:10.1016/j.compositesa.2017.10.027
+        Volume 104, p. 108-119, Jan 2018, doi:10.1016/j.compositesa.2017.10.027
 [2] - M. G. CHANDLER, et al., A multivariate statistical approach to wrinkling
         detection in composites, (unpublished)
 """
