@@ -27,12 +27,12 @@ repository, on publication of this work.
 
 ## References
 ----------
-[1] - M. G. CHANDLER, et al., A multivariate statistical approach to wrinkling
-        detection in composites, (unpublished)
-[2] - N. BUDYN, et al., A Model for Multiview Ultrasonic Array Inspection of
-        Small Two-Dimensional Defects, IEEE Transactions on Ultrasonics,
-        Ferroelectrics, and Frequency Control, Volume 66, p. 1129-1139, Jun
-        2019, doi:10.1109/TUFFC.2019.2909988
-[3] - L. J. NELSON, et al., Ply-orientation measurements in composites using
-        structure-tensor analysis of volumetric ultrasonic data, Composites A,
-        Volume 126, p. 105581, Nov 2019, doi:10.1016/j.compositesa.2017.10.027
+1. M. G. Chandler, et al., A multivariate statistical approach to wrinkling
+   detection in composites, (unpublished)
+3. N. Budyn, et al., A Model for Multiview Ultrasonic Array Inspection of
+   Small Two-Dimensional Defects, IEEE Transactions on Ultrasonics,
+   Ferroelectrics, and Frequency Control, Volume 66, p. 1129-1139, Jun
+   2019, doi:10.1109/TUFFC.2019.2909988
+4. L. J. Nelson, et al., Ply-orientation measurements in composites using
+   structure-tensor analysis of volumetric ultrasonic data, Composites A,
+   Volume 126, p. 105581, Nov 2019, doi:10.1016/j.compositesa.2017.10.027
