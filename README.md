@@ -9,7 +9,7 @@ Call this from a terminal with
 ```
 >> python autocorrelation_auc_sweep.py <box_idx, opt.>
 ```
-where <box_idx> is an integer which selects a window size from the unravelled
+where `<box_idx>` is an integer which selects a window size from the unravelled
 arrays `i_widths` and `j_widths` defined on line 173. If one is not provided, a
 default value of 208 is used.
 
@@ -29,10 +29,10 @@ repository, on publication of this work.
 ----------
 1. M. G. Chandler, et al., A multivariate statistical approach to wrinkling
    detection in composites, (unpublished)
-3. N. Budyn, et al., A Model for Multiview Ultrasonic Array Inspection of
+2. N. Budyn, et al., A Model for Multiview Ultrasonic Array Inspection of
    Small Two-Dimensional Defects, IEEE Transactions on Ultrasonics,
    Ferroelectrics, and Frequency Control, Volume 66, p. 1129-1139, Jun
    2019, doi:10.1109/TUFFC.2019.2909988
-4. L. J. Nelson, et al., Ply-orientation measurements in composites using
+3. L. J. Nelson, et al., Ply-orientation measurements in composites using
    structure-tensor analysis of volumetric ultrasonic data, Composites A,
    Volume 126, p. 105581, Nov 2019, doi:10.1016/j.compositesa.2017.10.027
