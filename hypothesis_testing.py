@@ -481,10 +481,10 @@ def roc(pos, neg, reduce_size=False):
 
     Parameters
     ----------
-    pos : ndarray (N1,)
+    pos : ndarray (N1,) or (N1, 1)
         Observations made when the null hypothesis is true. Multiple features
         is not currently supported.
-    neg : ndarray (N2,)
+    neg : ndarray (N2,) or (N2, 1)
         Observations made when the null hypothesis is false. Multiple features
         is not currently supported.
     reduce_size : bool
@@ -508,29 +508,31 @@ def roc(pos, neg, reduce_size=False):
     """
     # Check data
     pos, neg = np.squeeze(pos), np.squeeze(neg)
-    if pos.ndim < 2:
+    if pos.ndim == 1:
         pos = pos.reshape(-1, 1)
-    elif pos.ndim > 2:
+    elif pos.ndim == 2:
+        if pos.shape[1] != 1:
+            warnings.warn(
+                'pos should only have one feature, currently has {}.'.format(pos.shape[1])
+            )
+    else:
         raise ValueError(
-            'pos expected to have 2 dimensions, found {}.'.format(pos.ndim)
+            'pos expected to have 1 dimension, found {}.'.format(pos.ndim)
         )
-    elif pos.shape[1] != 1:
-        warnings.warn(
-            'pos should only have one feature, currently has {}.'.format(pos.shape[0])
-        )
-    if neg.ndim < 2:
+    if neg.ndim == 1:
         neg = neg.reshape(-1, 1)
-    elif neg.ndim > 2:
+    elif neg.ndim == 2:
+        if neg.shape[1] != 1:
+            warnings.warn(
+                'neg should only have one feature, currently has {}.'.format(neg.shape[1])
+            )
+    else:
         raise ValueError(
-            'neg expected to have 2 dimensions, found {}.'.format(neg.ndim)
-        )
-    elif neg.shape[1] != 1:
-        warnings.warn(
-            'neg should only have one feature, currently has {}.'.format(neg.shape[0])
+            'neg expected to have 1 dimension, found {}.'.format(neg.ndim)
         )
 
-    # # Check weights - leave out for now as working with weights will require
-    # # some reformulation.
+    # # Check weights if multiple features - leave out for now as working with
+    # # weights will require some reformulation when multiple features added.
     # if pos_wts is None:
     #     pos_wts = np.ones(pos.shape[1])
     # else:
@@ -554,7 +556,7 @@ def roc(pos, neg, reduce_size=False):
     pos, neg = np.sort(pos, axis=0)[::-1, :], np.sort(neg, axis=0)[::-1, :]
     # Sort unique values into descending order.
     x, idxs = np.unique(np.vstack([pos, neg]), return_index=True)
-    # x, idxs = x[::-1], idxs[::-1]
+    # Explicitly copy `idxs` by value, not by reference.
     tps, fps = idxs.copy(), idxs.copy()
 
     for loc, idx in enumerate(idxs):
@@ -588,7 +590,9 @@ def roc(pos, neg, reduce_size=False):
     # Ensure that `tps` and `fps` both start at 1 and end at 0.
     tps, fps = np.hstack([1, tps, 0]), np.hstack([1, fps, 0])
     x = np.hstack([x[0], x, x[-1]])
-
+    
+    # This needs optimisation. Have two goes at simplifying with increasing
+    # coarseness in case there are any errors, otherwise keep everything.
     if reduce_size and x.shape[0] > 10000:
         try:
             mask = opheim_simpl(fps, tps, 1e-5)
