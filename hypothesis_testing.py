@@ -102,7 +102,9 @@ def mahalanobis(x, mu, sig):
     Parameters
     ----------
     x : ndarray (M, N)
-        N-feature array of M observations of test points, for which the.
+        N-feature array of M observations of test points, for which the distance
+        from the multivariate normal distribution described by `mu` and `sig` will
+        be computed.
     mu : ndarray (N,)
         N-feature means.
     sig : ndarray (N, N)
@@ -132,6 +134,7 @@ def mahalanobis(x, mu, sig):
 def mardia_test(x, alpha=0.05):
     """
     Perform the Mardia test [2] for normality with multi-dimensional data.
+    Alternatively, check that Mahalanobis distance of `x` is distributed with χ².
 
     Parameters
     ----------
@@ -233,7 +236,7 @@ def opheim_simpl(x, y, tol):
     the algorithm:
     1) Select the first vertex as a `key`.
     2) Find the first vertex after `key` which is more than distance `tol`
-       away (call it `next`) and links these two vertices with a line, `line`.
+       away (call it `next`) and links these two vertices with `line`.
     3) Find the vertices which exist between `key` and `next`. Find the last
        one which sits within `tol` of `line` found in (2). Alternatively, find
        the vertex which (when connected to its previous point) forms a segment
@@ -241,6 +244,12 @@ def opheim_simpl(x, y, tol):
        which should typically be preserved). Call it `last`. Remove all points
        between `key` and `last`.
     4) Set `key = last` and repeat from (2), until all points are exhausted.
+    
+    This function is mostly useful for plotting curves which may have a large
+    number of points but are relatively smooth, e.g. the results of the `roc`
+    function. Not all of the data is needed to visually represent it. Consider 
+    using this if `matplotlib.pyplot` is really slow at plotting curves with a
+    lot of points.
 
     Parameters
     ----------
@@ -316,8 +325,9 @@ def ply_orientation(grid, tfm, p=0.4e-3):
         The grid over which the TFM is computed. Only spacing is used, so
         technically it can be any object with attributes `dx`, `dy`, `dz`.
     tfm : ndarray[complex]
-        TFM image produced over a composite material. Can be 2D or 3D (N.B. 3D
-        implementation currently not working).
+        TFM image produced over a composite material. In theory, it may be 2D
+        or 3D, but this work relied on 2D data so the 3D case is not fully 
+        implemented.
     p : float, optional
         Approximate ply thickness. Used in smoothing functions to produce the
         recommended kernel. The default is .4e-3.
@@ -394,9 +404,10 @@ def ply_orientation(grid, tfm, p=0.4e-3):
         # scharr_kern = np.zeros((3, 3, 3, 3))
     grad = np.zeros((tfm.ndim, *tfm.shape))
     for dim in range(tfm.ndim):
-        grad[dim] = cos_smoothed * convolve(
-            sin_smoothed, scharr_kern[dim], mode='same'
-        ) - sin_smoothed * convolve(cos_smoothed, scharr_kern[dim], mode='same')
+        grad[dim] = (
+            cos_smoothed * convolve(sin_smoothed, scharr_kern[dim], mode='same')
+            - sin_smoothed * convolve(cos_smoothed, scharr_kern[dim], mode='same')
+        )
 
     # Create structure tensor
     structure = grad.reshape(tfm.ndim, 1, *tfm.shape) * grad.reshape(
