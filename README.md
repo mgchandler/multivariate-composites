@@ -3,7 +3,8 @@
 A working repository encapsulating the process steps for the auto-correlation and
 hypothesis testing method for detection of area-based defects [1]. For a given
 window, determine the deviation from a fitted multivariate normal distribution
-within a set of images, and compute the ROC curve.
+within a set of images, and compute the ROC curve. Ultrasonic data was acquired
+using [BRAIN](https://github.com/ndtatbristol/brain1).
 
 Call this from a terminal with 
 ```
