@@ -29,10 +29,9 @@ repository, on publication of this work.
 ----------
 1. M. G. Chandler, Anthony J. Croxford, Paul D. Wilcox, "A multivariate statistical approach to wrinkling
    detection in composites", (unpublished)
-2. [N. Budyn, et al., A Model for Multiview Ultrasonic Array Inspection of
-   Small Two-Dimensional Defects, IEEE Transactions on Ultrasonics,
-   Ferroelectrics, and Frequency Control, Volume 66, p. 1129-1139
-   (2019)](https://doi.org/10.1109/TUFFC.2019.2909988)
-4. [L. J. Nelson, et al., Ply-orientation measurements in composites using
-   structure-tensor analysis of volumetric ultrasonic data, Composites A,
-   Volume 104, pp. 108-119 (2018)](https://doi.org/10.1016/j.compositesa.2017.10.027)
+2. [N. Budyn, et al., "A Model for Multiview Ultrasonic Array Inspection of
+   Small Two-Dimensional Defects", *IEEE Transactions on Ultrasonics,
+   Ferroelectrics, and Frequency Control* **66** (2019) 1129-1139](https://doi.org/10.1109/TUFFC.2019.2909988)
+4. [L. J. Nelson, et al., "Ply-orientation measurements in composites using
+   structure-tensor analysis of volumetric ultrasonic data", *Composites A*
+   **104**, (2018) 108-119](https://doi.org/10.1016/j.compositesa.2017.10.027)
