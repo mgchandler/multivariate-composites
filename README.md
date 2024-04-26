@@ -27,8 +27,8 @@ repository, on publication of this work.
 
 ## References
 ----------
-1. M. G. Chandler, et al., A multivariate statistical approach to wrinkling
-   detection in composites, (unpublished)
+1. M. G. Chandler, Anthony J. Croxford, Paul D. Wilcox, "A multivariate statistical approach to wrinkling
+   detection in composites", (unpublished)
 2. [N. Budyn, et al., A Model for Multiview Ultrasonic Array Inspection of
    Small Two-Dimensional Defects, IEEE Transactions on Ultrasonics,
    Ferroelectrics, and Frequency Control, Volume 66, p. 1129-1139
