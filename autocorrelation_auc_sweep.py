@@ -11,8 +11,8 @@ Call this from a terminal with
 >> python autocorrelation_auc_sweep.py <box_idx, opt.>
 ```
 where <box_idx> is an integer which selects a window size from the unravelled
-arrays `i_widths` and `j_widths` defined on line 173. If one is not provided, a
-default value of 208 is used.
+arrays `i_widths` and `j_widths` defined on line 176. If one is not provided, a
+default value of 208 is used, corresponding to `i_width, j_width = 9, 9`.
 
 Arim [2] is a module used for TFM image generation. While the original repo
 (https://github.com/ndtatbristol/arim) should work for this, I am working in a

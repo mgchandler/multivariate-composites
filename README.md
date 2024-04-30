@@ -10,8 +10,8 @@ Call this from a terminal with
 >> python autocorrelation_auc_sweep.py <box_idx, opt.>
 ```
 where `<box_idx>` is an integer which selects a window size from the unravelled
-arrays `i_widths` and `j_widths` defined on line 173. If one is not provided, a
-default value of 208 is used.
+arrays `i_widths` and `j_widths` defined on line 176. If one is not provided, a
+default value of 208 is used, corresponding to `i_width, j_width = 9, 9`.
 
 Arim [2] is a module used for TFM image generation. While the [original repo](https://github.com/ndtatbristol/arim)
 should work for this, I am working in a [different fork](https://github.com/mgchandler/arim-mgc).
@@ -32,6 +32,6 @@ repository, on publication of this work.
    Small Two-Dimensional Defects, IEEE Transactions on Ultrasonics,
    Ferroelectrics, and Frequency Control, Volume 66, p. 1129-1139
    (2019)](https://doi.org/10.1109/TUFFC.2019.2909988)
-4. [L. J. Nelson, et al., Ply-orientation measurements in composites using
+3. [L. J. Nelson, et al., Ply-orientation measurements in composites using
    structure-tensor analysis of volumetric ultrasonic data, Composites A,
    Volume 104, pp. 108-119 (2018)](https://doi.org/10.1016/j.compositesa.2017.10.027)
