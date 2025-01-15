@@ -20,17 +20,40 @@ References
         
 """
 __all__ = [
-    'auc', 'autocorrelate', 'convolve', 'correlate', 'cov', 'mahalanobis', 
-    'mardia_test', 'nancov', 'opheim_simpl', 'ply_orientation', 'roc'
+    'auc', 'autocorrelate', 'bounding_ellipse', 'convolve', 'correlate', 'cov',
+    'mahalanobis',  'mardia_test', 'nancov', 'opheim_simpl', 'ply_orientation',
+    'readable_idxs', 'roc', 'sorted_readable'
 ]
-__version__ = '0.1'
+__version__ = '0.2'
 __author__ = 'Matthew G. Chandler'
 
 import numpy as np
+from numpy.linalg import cholesky
 from scipy.stats import chi2, norm
+import re
 import warnings
 
 from np_redef import convolve, correlate, cov
+
+
+def alphanum_key(s):
+    """
+    Turn a string into a list of chunks, each containing strings and numbers.
+    Useful key for human-readable sorting.
+
+    Parameters
+    ----------
+    s : str
+        String to be converted.
+
+    Returns
+    -------
+    list
+        List of strings and numbers.
+
+    """
+    tryint = lambda c: int(c) if c.isdigit() else c
+    return [tryint(c) for c in re.split('([0-9]+)', s)]
 
 
 def auc(x, y):
@@ -94,7 +117,56 @@ def autocorrelate(x, mode="same", method="auto", axes=None):
     return acf / div
 
 
-def mahalanobis(x, mu, sig):
+def bounding_ellipse(mean, cov, sigma=1, N=100):
+    """
+    Returns the ellipse for which all values are `sigma`-far away from the mean
+    of the normal distribution with provided mean and covariance. All points on
+    this ellipse will have Mahalanobis distance of `sigma`:
+    ```
+    >>> ellipse = bounding_ellpise(mean, cov)
+    >>> dist = mahalanobis(ellipse, mean, cov)
+    >>> print(np.sqrt(dist))
+    [1. 1. 1. ... 1. 1. 1.]
+    ```
+
+    Parameters
+    ----------
+    mean : ndarray[float], (2,)
+        Mean vector of the normal distribution.
+    cov : ndarray[float], (2, 2)
+        Covariance matrix of the normal distribution.
+    sigma : float, optional
+        Required distance from the normal distribution. The default is 1.
+    N : int, optional
+        Number of points on the ellipse. The default is 100.
+
+    Returns
+    -------
+    ndarray[float], (N, 2)
+        Set of points on the ellipse.
+        
+    Notes
+    -----
+    This is a function which is intended to aid plotting, therefore it is
+    limited to only accept distributions with two features.
+
+    """
+    mean, cov = np.squeeze(mean), np.squeeze(cov)
+    if mean.shape != (2,):
+        raise ValueError('`mean` should have length 2; found shape {}'.format(mean.shape))
+    mean = mean.reshape(1, 2)
+    if cov.shape != (2, 2):
+        raise ValueError('`cov` should have shape (2, 2); found shape {}'.format(cov.shape))
+    
+    unit_circle = np.vstack([
+        np.cos(np.linspace(0, 2*np.pi, N)),
+        np.sin(np.linspace(0, 2*np.pi, N)),
+    ])
+    lower = cholesky(cov)
+    return sigma * np.dot(lower, unit_circle).transpose() + mean
+
+
+def mahalanobis(x, mean, cov):
     """
     Compute the square of Mahalanobis distance [3] of all observations in `x`:
         s² = (x - μ) Σ⁻¹ (x - μ)*
@@ -123,11 +195,11 @@ def mahalanobis(x, mu, sig):
             2000, doi:10.1016/S0169-7439(99)00047-7
 
     """
-    x, mu, sig = np.asarray(x), np.asarray(mu), np.asarray(sig)
+    x, mean, cov = np.asarray(x), np.asarray(mean), np.asarray(cov)
     return np.einsum(
         'ij,ji->i',
-        (x - mu.reshape(1, -1)).conj(),
-        np.linalg.solve(np.atleast_2d(sig), (x - mu.reshape(1, -1)).transpose()),
+        (x - mean.reshape(1, -1)).conj(),
+        np.linalg.solve(np.atleast_2d(cov), (x - mean.reshape(1, -1)).transpose()),
     ).real
 
 
@@ -244,12 +316,6 @@ def opheim_simpl(x, y, tol):
        which should typically be preserved). Call it `last`. Remove all points
        between `key` and `last`.
     4) Set `key = last` and repeat from (2), until all points are exhausted.
-    
-    This function is mostly useful for plotting curves which may have a large
-    number of points but are relatively smooth, e.g. the results of the `roc`
-    function. Not all of the data is needed to visually represent it. Consider 
-    using this if `matplotlib.pyplot` is really slow at plotting curves with a
-    lot of points.
 
     Parameters
     ----------
@@ -264,6 +330,14 @@ def opheim_simpl(x, y, tol):
     -------
     mask : ndarray[bool] (N,)
         Mask to be applied to `x` and `y` to remove the relevant data points.
+    
+    Notes
+    -----
+    This function is mostly useful for plotting curves which may have a large
+    number of points but are relatively smooth, e.g. the results of the `roc`
+    function. Not all of the data is needed to visually represent it. Consider 
+    using this if `matplotlib.pyplot` is really slow at plotting curves with a
+    lot of points.
 
     """
     x, y = np.asarray(x), np.asarray(y)
@@ -325,9 +399,8 @@ def ply_orientation(grid, tfm, p=0.4e-3):
         The grid over which the TFM is computed. Only spacing is used, so
         technically it can be any object with attributes `dx`, `dy`, `dz`.
     tfm : ndarray[complex]
-        TFM image produced over a composite material. In theory, it may be 2D
-        or 3D, but this work relied on 2D data so the 3D case is not fully 
-        implemented.
+        TFM image produced over a composite material. Can be 2D or 3D (N.B. 3D
+        implementation currently not working).
     p : float, optional
         Approximate ply thickness. Used in smoothing functions to produce the
         recommended kernel. The default is .4e-3.
@@ -404,10 +477,9 @@ def ply_orientation(grid, tfm, p=0.4e-3):
         # scharr_kern = np.zeros((3, 3, 3, 3))
     grad = np.zeros((tfm.ndim, *tfm.shape))
     for dim in range(tfm.ndim):
-        grad[dim] = (
-            cos_smoothed * convolve(sin_smoothed, scharr_kern[dim], mode='same')
-            - sin_smoothed * convolve(cos_smoothed, scharr_kern[dim], mode='same')
-        )
+        grad[dim] = cos_smoothed * convolve(
+            sin_smoothed, scharr_kern[dim], mode='same'
+        ) - sin_smoothed * convolve(cos_smoothed, scharr_kern[dim], mode='same')
 
     # Create structure tensor
     structure = grad.reshape(tfm.ndim, 1, *tfm.shape) * grad.reshape(
@@ -450,6 +522,10 @@ def ply_orientation(grid, tfm, p=0.4e-3):
     return ply_angle
 
 
+def readable_idxs(unsorted):
+    return sorted(range(len(unsorted)), key=lambda k: alphanum_key(unsorted[k]))
+
+
 def roc(pos, neg, reduce_size=False):
     """
     Compute receiver-operating characteristic curve from known positive and
@@ -481,10 +557,10 @@ def roc(pos, neg, reduce_size=False):
 
     Parameters
     ----------
-    pos : ndarray (N1,) or (N1, 1)
+    pos : ndarray (N1,)
         Observations made when the null hypothesis is true. Multiple features
         is not currently supported.
-    neg : ndarray (N2,) or (N2, 1)
+    neg : ndarray (N2,)
         Observations made when the null hypothesis is false. Multiple features
         is not currently supported.
     reduce_size : bool
@@ -508,31 +584,29 @@ def roc(pos, neg, reduce_size=False):
     """
     # Check data
     pos, neg = np.squeeze(pos), np.squeeze(neg)
-    if pos.ndim == 1:
+    if pos.ndim < 2:
         pos = pos.reshape(-1, 1)
-    elif pos.ndim == 2:
-        if pos.shape[1] != 1:
-            warnings.warn(
-                'pos should only have one feature, currently has {}.'.format(pos.shape[1])
-            )
-    else:
+    elif pos.ndim > 2:
         raise ValueError(
-            'pos expected to have 1 dimension, found {}.'.format(pos.ndim)
+            'pos expected to have 2 dimensions, found {}.'.format(pos.ndim)
         )
-    if neg.ndim == 1:
+    elif pos.shape[1] != 1:
+        warnings.warn(
+            'pos should only have one feature, currently has {}.'.format(pos.shape[0])
+        )
+    if neg.ndim < 2:
         neg = neg.reshape(-1, 1)
-    elif neg.ndim == 2:
-        if neg.shape[1] != 1:
-            warnings.warn(
-                'neg should only have one feature, currently has {}.'.format(neg.shape[1])
-            )
-    else:
+    elif neg.ndim > 2:
         raise ValueError(
-            'neg expected to have 1 dimension, found {}.'.format(neg.ndim)
+            'neg expected to have 2 dimensions, found {}.'.format(neg.ndim)
+        )
+    elif neg.shape[1] != 1:
+        warnings.warn(
+            'neg should only have one feature, currently has {}.'.format(neg.shape[0])
         )
 
-    # # Check weights if multiple features - leave out for now as working with
-    # # weights will require some reformulation when multiple features added.
+    # # Check weights - leave out for now as working with weights will require
+    # # some reformulation.
     # if pos_wts is None:
     #     pos_wts = np.ones(pos.shape[1])
     # else:
@@ -556,7 +630,7 @@ def roc(pos, neg, reduce_size=False):
     pos, neg = np.sort(pos, axis=0)[::-1, :], np.sort(neg, axis=0)[::-1, :]
     # Sort unique values into descending order.
     x, idxs = np.unique(np.vstack([pos, neg]), return_index=True)
-    # Explicitly copy `idxs` by value, not by reference.
+    # x, idxs = x[::-1], idxs[::-1]
     tps, fps = idxs.copy(), idxs.copy()
 
     for loc, idx in enumerate(idxs):
@@ -590,9 +664,7 @@ def roc(pos, neg, reduce_size=False):
     # Ensure that `tps` and `fps` both start at 1 and end at 0.
     tps, fps = np.hstack([1, tps, 0]), np.hstack([1, fps, 0])
     x = np.hstack([x[0], x, x[-1]])
-    
-    # This needs optimisation. Have two goes at simplifying with increasing
-    # coarseness in case there are any errors, otherwise keep everything.
+
     if reduce_size and x.shape[0] > 10000:
         try:
             mask = opheim_simpl(fps, tps, 1e-5)
@@ -604,3 +676,7 @@ def roc(pos, neg, reduce_size=False):
         x, tps, fps = x[mask], tps[mask], fps[mask]
 
     return x, tps, fps
+
+
+def sorted_readable(x):
+    return sorted(x, key=alphanum_key)

@@ -49,7 +49,7 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         box_idx = int(sys.argv[1])
     else:
-        box_idx = 208
+        box_idx = 176#208
         
     dirname = os.path.join('..', 'Raw Ultrasonic Data')
 
@@ -88,6 +88,7 @@ if __name__ == '__main__':
     # TFM storage. Start by trying to load TFMs if they have been precomputed
     # and saved.
     try:
+        raise FileNotFoundError
         wrinkled = np.load(os.path.join('..', 'TFMs', 'wrinkled_tfm_{:n}mm.npy'.format(pix*1e3)))
         # wrinkled = wrinkled[:, 900:]
         pristine = np.load(os.path.join('..', 'TFMs', 'pristine_tfm_{:n}mm.npy'.format(pix*1e3)))
